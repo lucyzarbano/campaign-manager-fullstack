@@ -28,18 +28,39 @@ export function CampaignFilters({
   onApply,
   onReset
 }: CampaignFiltersProps) {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onApply();
+  };
+
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+    <Paper
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ p: 2, mb: 2 }}
+      elevation={0}
+      variant="outlined"
+    >
+      <Stack
+        direction={{ xs: "column", md: "row" }}
+        spacing={2}
+        sx={{ alignItems: { md: "center" } }}
+      >
         <TextField
-          label="Search by name or ID"
+          label="Search by name"
           size="small"
           fullWidth
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              onApply();
+            }
+          }}
         />
 
-        <FormControl size="small" sx={{ minWidth: 180 }}>
+        <FormControl size="small" sx={{ minWidth: { xs: "100%", md: 180 } }}>
           <InputLabel>Status</InputLabel>
           <Select
             label="Status"
@@ -54,11 +75,16 @@ export function CampaignFilters({
           </Select>
         </FormControl>
 
-        <Button variant="contained" onClick={onApply}>
+        <Button type="submit" variant="contained" sx={{ minWidth: 96 }}>
           Apply
         </Button>
 
-        <Button variant="outlined" onClick={onReset}>
+        <Button
+          type="button"
+          variant="outlined"
+          onClick={onReset}
+          sx={{ minWidth: 96 }}
+        >
           Reset
         </Button>
       </Stack>

@@ -1,24 +1,44 @@
-import { Creative } from "../types/Creative.js";
 import crypto from "node:crypto";
+import type { Creative } from "../types/Creative.js";
 import { validate_creative_image } from "../utils/image.js";
 
 const creatives: Creative[] = [];
 
-
-export async function get_creatives_by_campaign_id(campaign_id: number): Promise<Creative[]> {
-    return creatives.filter((creative) => (creative.campaignId === campaign_id))
+export async function get_creatives_by_campaign_id(
+    campaign_id: number
+): Promise<Creative[]> {
+    return creatives.filter((creative) => creative.campaignId === campaign_id);
 }
 
-export async function create_creative(campaign_id: number, asset_url: string): Promise<Creative> {
-    
+export async function create_creative(
+    campaign_id: number,
+    asset_url: string
+): Promise<Creative> {
     await validate_creative_image(asset_url);
-    
+
     const creative: Creative = {
         id: crypto.randomUUID(),
         campaignId: campaign_id,
         assetUrl: asset_url,
         createdAt: new Date().toISOString()
-    }
-    creatives.push(creative)
+    };
+
+    creatives.push(creative);
     return creative;
+}
+
+export async function delete_creative(
+    creative_id: string,
+    campaign_id: number
+): Promise<boolean> {
+    const creative_index = creatives.findIndex((creative) => {
+        return creative.id === creative_id && creative.campaignId === campaign_id;
+    });
+
+    if (creative_index === -1) {
+        return false;
+    }
+
+    creatives.splice(creative_index, 1);
+    return true;
 }

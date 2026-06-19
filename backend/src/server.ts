@@ -1,7 +1,7 @@
 import express from 'express';
 import "dotenv/config";
 import cors from "cors";
-import { campaignsRouter } from './routes/campaings.route.js';
+import { campaignsRouter } from './routes/campaigns.route.js';
 import { creativesRouter } from './routes/creatives.routes.js';
 
 

@@ -1,7 +1,7 @@
 export interface CampaignUpdate {
-    id: number,
+    id: number;
     name?: string;
-    status?: 0 | 1 ;
+    status?: 0 | 1;
     landingUrl?: string;
     coverImageUrl?: string;
 }

@@ -2,7 +2,7 @@ import type { Campaign } from "../types/Campaign";
 import type CampaignFilters from "../types/CampaignFilters";
 import type CampaignResponse from "../types/CampaignResponse";
 import type CampaignsResponse from "../types/CampaignsResponse";
-import type { CampaignUpdate } from "../types/CampaingUpdate";
+import type { CampaignUpdate } from "../types/CampaignUpdate";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -36,7 +36,7 @@ export async function fetch_campaign_by_id(id: number): Promise<Campaign> {
     }
 
     const result = await response.json();
-    return result.data;;
+    return result.data;
 }
 
 

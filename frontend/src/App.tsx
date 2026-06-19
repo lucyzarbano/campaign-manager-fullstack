@@ -1,79 +1,103 @@
 import { useEffect, useState } from "react";
+import { Alert, Box, CircularProgress, Container, Typography } from "@mui/material";
 import "./App.css";
 import type { Campaign } from "./types/Campaign";
+import type { CampaignUpdate } from "./types/CampaignUpdate";
 import { fetch_campaigns, update_campaign } from "./api/campaigns";
-import { Box, Container, Paper, Typography } from "@mui/material";
 import { CampaignFilters } from "./components/CampaignFilters";
 import { CampaignTable } from "./components/CampaignTable";
 import { EditCampaignModal } from "./components/EditCampaignModal";
-import type { CampaignUpdate } from "./types/CampaingUpdate";
 import { ViewCreativeModal } from "./components/ViewCreativesModal";
 
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 20;
+const FAVORITE_CAMPAIGN_IDS_KEY = "favoriteCampaignIds";
+
+type StatusFilter = "" | "0" | "1";
+
+function getStoredFavoriteCampaignIds(): number[] {
+  const storedValue = localStorage.getItem(FAVORITE_CAMPAIGN_IDS_KEY);
+
+  if (!storedValue) {
+    return [];
+  }
+
+  try {
+    const parsedValue: unknown = JSON.parse(storedValue);
+
+    if (!Array.isArray(parsedValue)) {
+      return [];
+    }
+
+    return parsedValue.filter(
+      (id): id is number => typeof id === "number" && Number.isFinite(id)
+    );
+  } catch {
+    return [];
+  }
+}
 
 function App() {
-
-  const default_page = 1;
-  const default_limit = 20;
-
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [search, setSearch] = useState<string>("");
-  const [status, setStatus] = useState<"0" | "1" | "">("");
-  const [limit, setLimit] = useState<number>(default_limit);
-  const [page, setPage] = useState<number>(default_page);
-  const [totalPage, setTotalPage] = useState<number>(0);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<StatusFilter>("");
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [totalPages, setTotalPages] = useState(0);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
-  const [selectedCampaignOnViewCreative, setSelectedCampaignOnViewCreative] = useState<Campaign | null>(null);
-
+  const [selectedCampaignOnViewCreative, setSelectedCampaignOnViewCreative] =
+    useState<Campaign | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewCreativeOpen, setIsViewCreativeOpen] = useState(false);
-
-
-
+  const [favoriteCampaignIds, setFavoriteCampaignIds] = useState<number[]>(
+    getStoredFavoriteCampaignIds
+  );
 
   const load_campaigns = async (
-    next_search = search,
-    next_status = status,
-    next_page = page,
-    next_limit = limit
+    nextSearch = search,
+    nextStatus = status,
+    nextPage = page
   ) => {
-    const filter_params = {
-      q: next_search || undefined,
-      limit: next_limit,
-      status: next_status === "" ? undefined : Number(next_status) as 0 | 1,
-      page: next_page
-    }
+    const filterParams = {
+      q: nextSearch || undefined,
+      limit: DEFAULT_LIMIT,
+      status:
+        nextStatus === "" ? undefined : (Number(nextStatus) as 0 | 1),
+      page: nextPage
+    };
+
     try {
-      setIsLoading(true)
-      setError(null)
-      const response = await fetch_campaigns(filter_params);
+      setIsLoading(true);
+      setError(null);
+      const response = await fetch_campaigns(filterParams);
       setCampaigns(response.data);
-      setTotalPage(response.pagination.total_pages);
+      setTotalPages(response.pagination.total_pages);
     } catch {
-      setError('Unable to load campaigns')
+      setError("Unable to load campaigns");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const reset_filters = async () => {
-    setSearch("")
-    setStatus("")
-    setLimit(default_limit)
-    setPage(default_page)
+  const reset_filters = () => {
+    setSearch("");
+    setStatus("");
+    setPage(DEFAULT_PAGE);
+    void load_campaigns("", "", DEFAULT_PAGE);
+  };
 
-    load_campaigns("", "", default_page, default_limit);
-  }
-
-  const handleChangePage = (_event: React.ChangeEvent<unknown>, value: number) => {
+  const handleChangePage = (
+    _event: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
     setPage(value);
-    load_campaigns(search, status, value, limit);
+    void load_campaigns(search, status, value);
   };
 
   const handleApplyFilters = () => {
-    setPage(default_page);
-    load_campaigns(search, status, default_page, limit);
+    setPage(DEFAULT_PAGE);
+    void load_campaigns(search, status, DEFAULT_PAGE);
   };
 
   const handleEditCampaign = (campaign: Campaign) => {
@@ -86,39 +110,74 @@ function App() {
     setSelectedCampaign(null);
   };
 
-   const handleCloseViewCreativeModal = () => {
+  const handleCloseViewCreativeModal = () => {
     setIsViewCreativeOpen(false);
     setSelectedCampaignOnViewCreative(null);
+  };
+
+  const handleToggleFavorite = (campaign: Campaign) => {
+    const isFavorite = favoriteCampaignIds.includes(campaign.id);
+    const nextFavoriteCampaignIds = isFavorite
+      ? favoriteCampaignIds.filter((id) => id !== campaign.id)
+      : [...favoriteCampaignIds, campaign.id];
+
+    setFavoriteCampaignIds(nextFavoriteCampaignIds);
+    localStorage.setItem(
+      FAVORITE_CAMPAIGN_IDS_KEY,
+      JSON.stringify(nextFavoriteCampaignIds)
+    );
   };
 
   const handleSaveCampaign = async (campaignToUpdate: CampaignUpdate) => {
     try {
       await update_campaign(campaignToUpdate.id, campaignToUpdate);
       handleCloseEditModal();
-      await load_campaigns(search, status, page, limit);
+      await load_campaigns(search, status, page);
     } catch {
       setError("Unable to update campaign");
     }
-  }
+  };
 
-  const handleViewCreatives = async(campaign: Campaign) => {
+  const handleViewCreatives = (campaign: Campaign) => {
     setIsViewCreativeOpen(true);
     setSelectedCampaignOnViewCreative(campaign);
   };
 
   useEffect(() => {
-    load_campaigns();
-  }, []);
+    let isCancelled = false;
 
+    fetch_campaigns({ page: DEFAULT_PAGE, limit: DEFAULT_LIMIT })
+      .then((response) => {
+        if (isCancelled) {
+          return;
+        }
+
+        setCampaigns(response.data);
+        setTotalPages(response.pagination.total_pages);
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setError("Unable to load campaigns");
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   return (
     <Box className="app">
       <Container maxWidth="xl">
         <Box className="app-header">
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
             Campaign Manager
           </Typography>
-
           <Typography color="text.secondary">
             Manage campaigns, creatives, and campaign status.
           </Typography>
@@ -134,30 +193,27 @@ function App() {
         />
 
         {isLoading && (
-          <Paper sx={{ p: 3 }}>
+          <Box className="feedback-state" role="status">
+            <CircularProgress size={26} />
             <Typography>Loading campaigns...</Typography>
-          </Paper>
+          </Box>
         )}
 
-        {error && (
-          <Paper sx={{ p: 3 }}>
-            <Typography color="error">{error}</Typography>
-          </Paper>
-        )}
+        {!isLoading && error && <Alert severity="error">{error}</Alert>}
 
         {!isLoading && !error && campaigns.length === 0 && (
-          <Paper sx={{ p: 3 }}>
-            <Typography>No campaigns found.</Typography>
-          </Paper>
+          <Alert severity="info">No campaigns found.</Alert>
         )}
 
         {!isLoading && !error && campaigns.length > 0 && (
           <CampaignTable
             campaigns={campaigns}
             page={page}
-            totalPages={totalPage}
+            totalPages={totalPages}
+            favoriteCampaignIds={favoriteCampaignIds}
             onPageChange={handleChangePage}
             onEditCampaign={handleEditCampaign}
+            onToggleFavorite={handleToggleFavorite}
             onViewCreatives={handleViewCreatives}
           />
         )}
@@ -179,7 +235,6 @@ function App() {
             onClose={handleCloseViewCreativeModal}
           />
         )}
-
       </Container>
     </Box>
   );
