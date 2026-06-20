@@ -4,6 +4,10 @@ import { validate_creative_image } from "../utils/image.js";
 
 const creatives: Creative[] = [];
 
+export function reset_creatives(): void {
+    creatives.length = 0;
+}
+
 export async function get_creatives_by_campaign_id(
     campaign_id: number
 ): Promise<Creative[]> {

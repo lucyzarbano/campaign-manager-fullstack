@@ -8,6 +8,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const updatedCampaigns = new Map<number, Campaign>();
 
+export function reset_campaign_updates(): void {
+    updatedCampaigns.clear();
+}
+
 interface CampaignCsvRecord {
     id: string;
     name: string;
