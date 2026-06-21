@@ -48,6 +48,14 @@ describe("GET /api/campaigns", () => {
         }
     });
 
+    it("searches campaigns by id", async () => {
+        const response = await request(app).get("/api/campaigns?id=1");
+
+        expect(response.status).toBe(200);
+        expect(response.body.data).toHaveLength(1);
+        expect(response.body.data[0].id).toBe(1);
+    });
+
     it("filters paused campaigns", async () => {
         const response = await request(app).get(
             "/api/campaigns?status=0"

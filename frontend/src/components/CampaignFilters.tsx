@@ -12,8 +12,10 @@ import {
 type StatusFilter = "" | "0" | "1";
 
 interface CampaignFiltersProps {
+  campaignId: string;
   search: string;
   status: StatusFilter;
+  onCampaignIdChange: (value: string) => void;
   onSearchChange: (value: string) => void;
   onStatusChange: (value: StatusFilter) => void;
   onApply: () => void;
@@ -21,8 +23,10 @@ interface CampaignFiltersProps {
 }
 
 export function CampaignFilters({
+  campaignId,
   search,
   status,
+  onCampaignIdChange,
   onSearchChange,
   onStatusChange,
   onApply,
@@ -46,6 +50,16 @@ export function CampaignFilters({
         spacing={2}
         sx={{ alignItems: { md: "center" } }}
       >
+        <TextField
+          label="Campaign ID"
+          type="number"
+          size="small"
+          value={campaignId}
+          onChange={(event) => onCampaignIdChange(event.target.value)}
+          slotProps={{ htmlInput: { min: 1 } }}
+          sx={{ minWidth: { xs: "100%", md: 160 } }}
+        />
+
         <TextField
           label="Search by name"
           size="small"

@@ -16,6 +16,7 @@ export async function fetch_campaigns(
     if (filters.status !== undefined) { params.set("status", String(filters.status)) }
     if (filters.page) { params.set("page", String(filters.page)) }
     if (filters.limit) { params.set("limit", String(filters.limit)) }
+    if (filters.id !== undefined) { params.set("id", String(filters.id)) }
     if (filters.q) { params.set("q", String(filters.q)) }
 
     const response = await fetch(`${API_BASE_URL}/api/campaigns?${params.toString()}`);

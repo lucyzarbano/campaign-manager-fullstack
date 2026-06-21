@@ -9,6 +9,7 @@ campaignsRouter.get("/", async (req, res) => {
   const start = (page - 1) * limit;
   const end = start + limit;
   const status = req.query.status !== undefined ? Number(req.query.status) : undefined;
+  const id = req.query.id !== undefined ? Number(req.query.id) : undefined;
   const q = req.query.q !== undefined ? String(req.query.q).toLocaleLowerCase() : undefined;
   const campaign_list = await get_campaigns();
   let filtered_campaigns = campaign_list;
@@ -16,6 +17,11 @@ campaignsRouter.get("/", async (req, res) => {
   if (status === 0 || status === 1) {
     filtered_campaigns = filtered_campaigns.filter((campaign) => {
       return campaign.status === status
+    })
+  }
+  if (Number.isInteger(id)) {
+    filtered_campaigns = filtered_campaigns.filter((campaign) => {
+      return campaign.id === id
     })
   }
   if (q) {

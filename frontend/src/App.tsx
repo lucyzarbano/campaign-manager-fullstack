@@ -41,6 +41,7 @@ function App() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [campaignId, setCampaignId] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<StatusFilter>("");
   const [page, setPage] = useState(DEFAULT_PAGE);
@@ -56,11 +57,13 @@ function App() {
 
   const load_campaigns = async (
     nextSearch = search,
+    nextCampaignId = campaignId,
     nextStatus = status,
     nextPage = page
   ) => {
     const filterParams = {
       q: nextSearch || undefined,
+      id: nextCampaignId ? Number(nextCampaignId) : undefined,
       limit: DEFAULT_LIMIT,
       status:
         nextStatus === "" ? undefined : (Number(nextStatus) as 0 | 1),
@@ -81,10 +84,11 @@ function App() {
   };
 
   const reset_filters = () => {
+    setCampaignId("");
     setSearch("");
     setStatus("");
     setPage(DEFAULT_PAGE);
-    void load_campaigns("", "", DEFAULT_PAGE);
+    void load_campaigns("", "", "", DEFAULT_PAGE);
   };
 
   const handleChangePage = (
@@ -92,12 +96,12 @@ function App() {
     value: number
   ) => {
     setPage(value);
-    void load_campaigns(search, status, value);
+    void load_campaigns(search, campaignId, status, value);
   };
 
   const handleApplyFilters = () => {
     setPage(DEFAULT_PAGE);
-    void load_campaigns(search, status, DEFAULT_PAGE);
+    void load_campaigns(search, campaignId, status, DEFAULT_PAGE);
   };
 
   const handleEditCampaign = (campaign: Campaign) => {
@@ -132,7 +136,7 @@ function App() {
     try {
       await update_campaign(campaignToUpdate.id, campaignToUpdate);
       handleCloseEditModal();
-      await load_campaigns(search, status, page);
+      await load_campaigns(search, campaignId, status, page);
     } catch {
       setError("Unable to update campaign");
     }
@@ -184,8 +188,10 @@ function App() {
         </Box>
 
         <CampaignFilters
+          campaignId={campaignId}
           search={search}
           status={status}
+          onCampaignIdChange={setCampaignId}
           onSearchChange={setSearch}
           onStatusChange={setStatus}
           onApply={handleApplyFilters}
