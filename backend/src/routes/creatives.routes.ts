@@ -1,8 +1,10 @@
 import { Router } from "express";
 import {
+  can_add_creative_to_campaign,
   create_creative,
   delete_creative,
-  get_creatives_by_campaign_id
+  get_creatives_by_campaign_id,
+  is_campaign_active
 } from "../services/creative.js";
 import { get_campaign } from "../services/campaign.js";
 
@@ -35,15 +37,13 @@ creativesRouter.post("/:id/creatives", async (req, res) => {
     return res.status(404).json({ message: "Campaign not found" });
   }
 
-  if (campaign.status === 0) {
+  if (!is_campaign_active(campaign.status)) {
     return res.status(400).json({
       message: "Paused campaigns cannot accept new creatives"
     });
   }
 
-  const existing_creatives = await get_creatives_by_campaign_id(campaign_id);
-
-  if (existing_creatives.length >= 3) {
+  if (!(await can_add_creative_to_campaign(campaign.id))) {
     return res.status(400).json({
       message: "A campaign can have at most 3 creatives"
     });

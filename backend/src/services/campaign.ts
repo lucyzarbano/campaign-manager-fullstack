@@ -1,34 +1,18 @@
-import { parse } from "csv-parse/sync";
-import { Campaign } from "../types/Campaign.js";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
+import type { Campaign } from "../types/Campaign.js";
+import {
+    listCampaignsFromCsv,
+    type CampaignCsvRecord
+} from "../data/campaignCsv.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const updatedCampaigns = new Map<number, Campaign>();
 
 export function reset_campaign_updates(): void {
     updatedCampaigns.clear();
 }
 
-interface CampaignCsvRecord {
-    id: string;
-    name: string;
-    status: string;
-    landingUrl: string;
-    coverImageUrl: string;
-    createdAt: string;
-}
 
 export async function get_campaigns(): Promise<Campaign[]> {
-    const filePath = path.join(__dirname, "../../data/campaigns_data_2026.csv");
-    const fileContent = readFileSync(filePath, "utf8");
-    const records = parse(fileContent, {
-        columns: true,
-        delimiter: ";",
-        skip_empty_lines: true
-    }) as CampaignCsvRecord[];
+    const records: CampaignCsvRecord[] = listCampaignsFromCsv();
 
     const campaign_list: Campaign[] = records.map((record) => ({
         id: Number(record.id),

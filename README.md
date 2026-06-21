@@ -151,11 +151,10 @@ Favorite campaign IDs are stored in the browser's `localStorage`.
 ## Performance Considerations
 
 Pagination and filtering are handled by the backend so the frontend only
-renders the requested result set. For this exercise the CSV is parsed on each
-campaign read, which keeps the implementation simple but would be replaced by
-a cached data source or database in a production system. Base64 image payloads
-also add transfer overhead and are suitable here only because uploads are
-small and constrained.
+renders the requested result set. The CSV is read and parsed lazily on the
+first campaign request, then cached for the lifetime of the backend process to
+avoid repeated disk I/O. Base64 image payloads add transfer overhead and are
+suitable here only because uploads are small and constrained.
 
 ## Production Approach
 

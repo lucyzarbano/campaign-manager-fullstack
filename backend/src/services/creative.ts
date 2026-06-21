@@ -46,3 +46,14 @@ export async function delete_creative(
     creatives.splice(creative_index, 1);
     return true;
 }
+
+export async function can_add_creative_to_campaign(
+    campaign_id: number
+): Promise<boolean> {
+    const existing_creatives = await get_creatives_by_campaign_id(campaign_id);
+    return existing_creatives.length < 3;
+}
+
+export function is_campaign_active(campaign_status: number): boolean {
+    return campaign_status === 1;
+}
