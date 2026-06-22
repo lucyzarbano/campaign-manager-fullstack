@@ -59,19 +59,11 @@ describe("CampaignTable", () => {
     });
     await user.click(favoriteButton);
     expect(onToggleFavorite).toHaveBeenCalledTimes(1);
+    expect(onToggleFavorite).toHaveBeenCalledWith(campaign);
   });
 
   it("calls onEditCampaign with campaign payload when edit button is clicked", async () => {
     const user = userEvent.setup();
-    const campaign: Campaign = {
-      id: 42,
-      name: "Summer Campaign",
-      status: 1,
-      landingUrl: "https://example.com/landing",
-      coverImageUrl: "https://example.com/cover.jpg",
-      createdAt: "2026-06-20T10:00:00.000Z"
-    };
-
     const onEditCampaign = vi.fn();
 
     render(

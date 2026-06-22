@@ -92,16 +92,11 @@ describe("CampaignFilters", () => {
         onReset={vi.fn()}
       />
     );
-    //screen.debug();
     const statusSelect = screen.getByRole("combobox");
 
     await user.click(statusSelect);
     await user.click(screen.getByRole("option", { name: /active/i }));
     expect(onStatusChange).toHaveBeenCalledWith("1");
-
-    //await user.click(screen.getByRole("option", { name: /paused/i }));
-    //expect(onStatusChange).toHaveBeenCalledWith("0");
-
   });
 
   it("calls onCampaignIdChange when the ID field changes", () => {

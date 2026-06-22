@@ -9,7 +9,7 @@ vi.mock("../../api/campaigns", () => ({
     update_campaign: vi.fn(),
 }));
 
-const mockedFetcCampaigns = vi.mocked(fetch_campaigns)
+const mockedFetchCampaigns = vi.mocked(fetch_campaigns)
 
 describe("App", () => {
     beforeEach(() => {
@@ -17,7 +17,7 @@ describe("App", () => {
         localStorage.clear();
     })
 
-    it("mostra i dati dopo il caricamento", async () => {
+    it("displays campaigns after loading", async () => {
          const campaign: Campaign = {
               id: 42,
               name: "Summer Campaign",
@@ -35,15 +35,10 @@ describe("App", () => {
             "total_pages": 35
           }
         };
-        mockedFetcCampaigns.mockResolvedValueOnce(mock_campaign_response);
-
+        mockedFetchCampaigns.mockResolvedValueOnce(mock_campaign_response);
         render(<App />);
-
         expect(screen.getByText(/loading campaigns/i)).toBeInTheDocument();
-
         expect(await screen.findByText("Summer Campaign")).toBeInTheDocument();
-
-
     });
 
 })
