@@ -41,4 +41,17 @@ describe("App", () => {
         expect(await screen.findByText("Summer Campaign")).toBeInTheDocument();
     });
 
-})
+    it("displays error campaigns after loading", async () => {
+        mockedFetchCampaigns.mockRejectedValueOnce(new Error("Network error"));
+
+        render(<App />);
+        expect(screen.getByText(/loading campaigns/i)).toBeInTheDocument();
+        expect(
+            await screen.findByText("Unable to load campaigns")
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByText(/loading campaigns/i)
+        ).not.toBeInTheDocument();
+    });
+
+});

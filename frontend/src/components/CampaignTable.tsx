@@ -95,7 +95,7 @@ export function CampaignTable({
 
                 <TableCell>
                   <a href={campaign.landingUrl} target="_blank" rel="noreferrer">
-                    Open
+                    Open landing
                   </a>
                 </TableCell>
 
@@ -105,7 +105,7 @@ export function CampaignTable({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    View
+                    View cover
                   </a>
                 </TableCell>
 

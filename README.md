@@ -15,7 +15,7 @@ and a React single-page application.
 - Creative uploads disabled for paused campaigns
 - Favorite campaigns stored in browser `localStorage`
 - Loading, empty, and error states
-- Backend integration tests
+- Backend integration and frontend component tests
 
 ## Tech Stack
 
@@ -134,10 +134,11 @@ cd backend
 npm run build
 ```
 
-Lint and build the frontend:
+Test, lint, and build the frontend:
 
 ```bash
 cd frontend
+npm test
 npm run lint
 npm run build
 ```

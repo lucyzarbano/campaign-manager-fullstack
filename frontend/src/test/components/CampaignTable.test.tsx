@@ -112,4 +112,47 @@ describe("CampaignTable", () => {
       expect(onViewCreatives).toHaveBeenCalledWith(campaign);
   })
 
+  it("renders the landing link", () => {
+    render(
+      <CampaignTable
+        campaigns={[campaign]}
+        page={1}
+        totalPages={1}
+        favoriteCampaignIds={[]}
+        onPageChange={vi.fn()}
+        onEditCampaign={vi.fn()}
+        onToggleFavorite={vi.fn()}
+        onViewCreatives={vi.fn()}
+      />
+    );
+
+    const landingLink = screen.getByRole("link", {
+      name: /open landing/i
+    });
+    expect(landingLink).toBeInTheDocument();
+    expect(landingLink).toHaveAttribute("href", campaign.landingUrl);
+    expect(landingLink).toHaveAttribute("target", "_blank");
+  });
+
+  it("renders the cover image link", () => {
+    render(
+      <CampaignTable
+        campaigns={[campaign]}
+        page={1}
+        totalPages={1}
+        favoriteCampaignIds={[]}
+        onPageChange={vi.fn()}
+        onEditCampaign={vi.fn()}
+        onToggleFavorite={vi.fn()}
+        onViewCreatives={vi.fn()}
+      />
+    );
+
+    const coverLink = screen.getByRole("link", {
+      name: /view cover/i
+    });
+    expect(coverLink).toBeInTheDocument();
+    expect(coverLink).toHaveAttribute("href", campaign.coverImageUrl);
+    expect(coverLink).toHaveAttribute("target", "_blank");
+  });
 });
